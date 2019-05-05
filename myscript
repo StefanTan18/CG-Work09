@@ -1,0 +1,32 @@
+push
+move
+100 225 0
+sphere
+0 0 0 150
+move
+75 50 -100
+sphere
+0 0 0 140
+move
+75 50 -150
+sphere
+0 0 0 100
+torus
+0 0 0 15 150
+move
+75 50 -100
+sphere
+0 0 0 75
+torus
+0 0 0 5 100
+move
+75 50 -100
+sphere
+0 0 0 50
+move
+75 50 -100
+sphere
+0 0 0 25
+display
+save
+planets.png

@@ -23,28 +23,85 @@
 
 //lighting functions
 color get_lighting( double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
-  color i;
+  color i, a, d, s;
+
+  normalize(normal);
+  normalize(light[LOCATION]);
+  normalize(view);
+
+  a = calculate_ambient(alight, areflect);
+  d = calculate_diffuse(light, dreflect, normal);
+  s = calculate_specular(light, sreflect, view, normal);
+
+  i.red = a.red + d.red + s.red;
+  i.green = a.green + d.green + s.green;
+  i.blue = a.blue + d.blue + s.blue;
+
+  limit_color(&i);
+
   return i;
 }
 
 color calculate_ambient(color alight, double *areflect ) {
   color a;
+
+  a.red = alight.red * areflect[RED];
+  a.green = alight.green * areflect[GREEN];
+  a.blue = alight.blue * areflect[BLUE];
+
   return a;
 }
 
 color calculate_diffuse(double light[2][3], double *dreflect, double *normal ) {
   color d;
+  double cos;
+
+  cos = dot_product(normal, light[LOCATION]);
+  if (cos < 0) {
+    cos = 0;
+  }
+
+  d.red = light[COLOR][RED] * dreflect[RED] * cos;
+  d.green = light[COLOR][GREEN] * dreflect[GREEN] * cos;
+  d.blue = light[COLOR][BLUE] * dreflect[BLUE] * cos;
+
   return d;
 }
 
 color calculate_specular(double light[2][3], double *sreflect, double *view, double *normal ) {
-
   color s;
+  int i;
+  double cos;
+  double r[3];
+
+  cos = dot_product(normal, light[LOCATION]);
+  for (i = 0; i < 3; i++) {
+    r[i] = 2 * normal[i] * cos - light[LOCATION][i];
+  }
+  cos = dot_product(r, view);
+  if (cos < 0) {
+    cos = 0;
+  }
+  cos = pow(cos, SPECULAR_EXP);
+
+  s.red = light[COLOR][RED] * sreflect[RED] * cos;
+  s.green = light[COLOR][GREEN] * sreflect[GREEN] * cos;
+  s.blue = light[COLOR][BLUE] * sreflect[BLUE] * cos;
+
   return s;
 }
 
 //limit each component of c to a max of 255
 void limit_color( color * c ) {
+  if ((*c).red > 255) {
+    (*c).red = 255;
+  }
+  if ((*c).green > 255) {
+    (*c).green = 255;
+  }
+  if ((*c).blue > 255) {
+    (*c).blue = 255;
+  }
 }
 
 //vector functions
